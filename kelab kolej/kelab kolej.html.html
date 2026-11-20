@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ms" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Pendaftaran Kelab Pelajar - Kolej Poly-Tech MARA Kota Bharu</title>
+
+  <!-- Google Fonts: Work Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Work Sans"', 'sans-serif'] },
+          colors: {
+            brand: '#38bdf8',
+            dark: { 100: '#0b1220', 200: '#131c31', 300: '#0f172a' },
+            light: { 100: '#f8fafc', 200: '#e2e8f0', 300: '#ffffff' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <!-- Header Korporat KPTM Kota Bharu -->
+  <header class="w-full bg-white/90 dark:bg-dark-300/85 backdrop-blur-md border-b border-slate-200 dark:border-white/10 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between relative gap-4">
+      
+      <!-- Logo & Nama Korporat -->
+      <div class="flex items-center gap-4 text-center sm:text-left">
+        <div class="h-12 w-12 rounded-xl bg-white p-1.5 shadow-md flex items-center justify-center border border-slate-200 dark:border-slate-700 shrink-0">
+          <img src="https://images.seeklogo.com/logo-png/30/2/kptm-logo-png_seeklogo-300371.png" alt="Logo KPTM" class="h-full w-full object-contain" onerror="this.src='https://placehold.co/100x100/1e293b/ffffff?text=KPTM'">
+        </div>
+        <div>
+          <span class="text-xs font-bold tracking-widest text-sky-600 dark:text-sky-400 uppercase">Kolej Poly-Tech MARA Kota Bharu</span>
+          <h1 class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Portal Rasmi Kelab & Persatuan</h1>
+        </div>
+      </div>
+
+      <!-- Navigasi & Tukar Tema -->
+      <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 text-sky-700 dark:text-sky-300 text-xs font-semibold">
+          <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span> Sesi Rasmi 2026/2027
+        </div>
+        <button id="btn-theme-toggle" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition shadow-sm" aria-label="Tukar Tema">
+          <i data-lucide="moon" id="theme-icon" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 w-full max-w-6xl mx-auto px-6 py-8 flex flex-col">
+    
+    <!-- Hero Banner Korporat -->
+    <section class="mb-8 p-8 rounded-2xl bg-gradient-to-r from-sky-900 via-slate-900 to-indigo-950 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 border border-sky-500/20">
+      <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="relative z-10 max-w-xl text-center md:text-left">
+        <span class="inline-block px-3 py-1 bg-sky-500/20 text-sky-300 text-xs font-bold rounded-lg mb-3 uppercase tracking-wider border border-sky-400/30">Pembangunan Sahsiah & Kepimpinan</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">Membina Kecemerlangan Pelajar Holistik</h2>
+        <p class="text-slate-300 text-sm leading-relaxed">Sertai aktiviti kokurikulum, kembangkan potensi diri, dan bina rangkaian profesional bersama rakan sekolej di KPTM Kota Bharu.</p>
+      </div>
+      <div class="relative z-10 flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
+        <div class="bg-white/10 backdrop-blur-md px-5 py-4 rounded-xl border border-white/10 text-center">
+          <span id="stat-total-clubs" class="block text-2xl font-bold text-sky-400">0</span>
+          <span class="text-xs text-slate-300 uppercase tracking-wider font-medium">Kelab Aktif</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls (Search, Filter, Sort) -->
+    <section class="mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between bg-white dark:bg-dark-300 p-4 rounded-xl border border-slate-200 dark:border-white/5 shadow-sm">
+      <div class="relative w-full sm:w-1/2">
+        <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+        <input type="text" id="search-input" placeholder="Cari nama atau penerangan kelab..." class="custom-input w-full pl-10 pr-4 py-2.5 rounded-xl text-sm font-medium">
+      </div>
+      <div class="flex gap-3 w-full sm:w-auto">
+        <select id="filter-category" class="custom-input px-4 py-2.5 rounded-xl text-sm font-medium w-full sm:w-auto cursor-pointer">
+          <option value="all">Semua Kategori</option>
+          <option value="Sukan">Sukan</option>
+          <option value="Akademik">Akademik</option>
+          <option value="Seni">Seni & Budaya</option>
+          <option value="Inovasi">Inovasi</option>
+        </select>
+        <select id="sort-order" class="custom-input px-4 py-2.5 rounded-xl text-sm font-medium w-full sm:w-auto cursor-pointer">
+          <option value="newest">Terbaharu</option>
+          <option value="az">Abjad (A-Z)</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="flex flex-col items-center justify-center py-20 text-slate-500">
+      <i data-lucide="loader-2" class="w-10 h-10 mb-4 animate-spin text-sky-600 dark:text-sky-400"></i>
+      <p class="text-sm font-medium">Menghubungkan ke pangkalan data KPTM Kota Bharu...</p>
+    </div>
+
+    <!-- Empty/Error State -->
+    <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-slate-500 text-center px-4">
+      <i data-lucide="folder-search" class="w-16 h-16 mb-4 opacity-50" id="empty-state-icon"></i>
+      <p class="text-lg font-medium text-slate-700 dark:text-slate-300" id="empty-state-text">Tiada kelab ditemui.</p>
+      <p class="text-sm mt-2 max-w-md hidden text-slate-500" id="empty-state-subtext"></p>
+    </div>
+
+    <!-- Club Grid Section -->
+    <section>
+      <div id="clubs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+        <!-- Cards injected via JS -->
+      </div>
+    </section>
+
+    <!-- Admin Section -->
+    <section class="mt-20 p-6 sm:p-8 bg-white dark:bg-dark-300 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl transition-colors shadow-sm" id="admin-icon-bg">
+            <i data-lucide="shield-check" class="w-6 h-6 text-slate-500 dark:text-slate-300" id="admin-shield-icon"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Panel Pengurusan Pentadbir</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400" id="admin-status-text">Log masuk sebagai Penyelaras Kelab</p>
+          </div>
+        </div>
+        
+        <div class="flex flex-wrap gap-3">
+          <button id="btn-admin-login" class="flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl transition font-semibold text-sm shadow-md">
+            <i data-lucide="lock" class="w-4 h-4"></i> Akses Pentadbir
+          </button>
+          
+          <button id="btn-add-club" class="hidden items-center gap-2 px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl transition font-semibold text-sm shadow-md shadow-sky-600/20">
+            <i data-lucide="plus" class="w-4 h-4"></i> Tambah Kelab Baharu
+          </button>
+          <button id="btn-admin-logout" class="hidden items-center gap-2 px-5 py-2.5 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl transition font-semibold text-sm hover:bg-red-100 dark:hover:bg-red-500/20">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Keluar Mod
+          </button>
+        </div>
+      </div>
+
+      <!-- Add/Edit Club Form -->
+      <div id="club-form-container" class="hidden mt-8 pt-8 border-t border-slate-200 dark:border-white/5 animate-pop">
+        <h3 id="form-title" class="text-xl font-bold text-slate-900 dark:text-white mb-6">Tambah Kelab</h3>
+        <form id="club-form" class="space-y-5">
+          <input type="hidden" id="edit-club-id">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Nama Kelab / Persatuan <span class="text-red-500">*</span></label>
+              <input type="text" id="input-name" required placeholder="Contoh: Kelab Keusahawanan" class="custom-input w-full px-4 py-3 rounded-xl text-sm font-medium">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Nama Penasihat / Penyelia <span class="text-red-500">*</span></label>
+              <input type="text" id="input-supervisor" required placeholder="Contoh: Puan Siti Nor" class="custom-input w-full px-4 py-3 rounded-xl text-sm font-medium">
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Kategori <span class="text-red-500">*</span></label>
+            <select id="input-category" required class="custom-input w-full px-4 py-3 rounded-xl text-sm font-medium">
+              <option value="Sukan">Sukan</option>
+              <option value="Akademik">Akademik</option>
+              <option value="Seni">Seni & Budaya</option>
+              <option value="Inovasi">Inovasi</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Penerangan & Objektif <span class="text-red-500">*</span></label>
+            <textarea id="input-desc" required rows="3" placeholder="Terangkan aktiviti utama dan matlamat kelab..." class="custom-input w-full px-4 py-3 rounded-xl text-sm font-medium resize-y"></textarea>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">URL Pendaftaran Rasmi <span class="text-red-500">*</span></label>
+              <input type="url" id="input-link" required placeholder="https://" class="custom-input w-full px-4 py-3 rounded-xl text-sm font-medium">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">URL Poster / Banner (Pilihan)</label>
+              <input type="url" id="input-image" placeholder="https://" class="custom-input w-full px-4 py-3 rounded-xl text-sm font-medium">
+            </div>
+          </div>
+          
+          <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-white/5 mt-6">
+            <button type="button" id="btn-cancel-form" class="px-5 py-2.5 text-sm font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition">Batal</button>
+            <button type="submit" id="btn-submit-form" class="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold bg-sky-600 hover:bg-sky-500 text-white rounded-xl transition disabled:opacity-50 shadow-lg shadow-sky-600/20">
+              <i data-lucide="save" class="w-4 h-4"></i> Simpan Rekod
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer Korporat dengan Kredit Shahrul Studios -->
+  <footer class="w-full bg-white dark:bg-dark-300 border-t border-slate-200 dark:border-white/5 mt-16 py-8">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+      <div class="flex items-center gap-3">
+        <img src="https://images.seeklogo.com/logo-png/30/2/kptm-logo-png_seeklogo-300371.png" alt="Logo KPTM" class="h-8 w-8 object-contain">
+        <p class="text-xs font-medium text-slate-500 dark:text-slate-400">&copy; 2026 Kolej Poly-Tech MARA Kota Bharu. Hak Cipta Terpelihara.</p>
+      </div>
+      <p class="text-xs text-slate-400">Dibangunkan oleh <a href="https://shahrulstudios.com" target="_blank" rel="noopener noreferrer" class="text-sky-600 dark:text-sky-400 font-semibold hover:underline">shahrulstudios.com</a></p>
+    </div>
+  </footer>
+
+  <!-- Admin Password Modal -->
+  <div id="modal-password" class="fixed inset-0 z-[60] flex items-center justify-center hidden modal-backdrop">
+    <div class="bg-white dark:bg-dark-300 rounded-2xl p-8 w-full max-w-sm shadow-2xl relative animate-pop border border-slate-200 dark:border-slate-700">
+      <button id="btn-close-modal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex justify-center mb-4"><div class="p-3 bg-sky-100 dark:bg-sky-950/60 rounded-2xl text-sky-600 dark:text-sky-400"><i data-lucide="lock" class="w-8 h-8"></i></div></div>
+      <h3 class="text-xl font-bold text-center text-slate-900 dark:text-white mb-2">Pengesahan Pentadbir</h3>
+      <p class="text-xs text-center text-slate-500 mb-5">Sila masukkan kata laluan keselamatan sistem.</p>
+      <form id="password-form">
+        <input type="password" id="input-password" required placeholder="Kata Laluan" class="custom-input w-full px-4 py-3 rounded-xl text-center mb-3 tracking-widest font-semibold">
+        <p id="password-error" class="text-red-500 text-xs text-center mb-3 hidden bg-red-50 dark:bg-red-500/10 p-2 rounded-lg font-medium">Kata laluan tidak sah!</p>
+        <button type="submit" class="w-full py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl transition shadow-lg shadow-sky-600/20">Sahkan Masuk</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Club Detail Modal -->
+  <div id="modal-detail" class="fixed inset-0 z-[60] flex items-center justify-center hidden modal-backdrop p-4">
+    <div class="bg-white dark:bg-dark-300 rounded-2xl w-full max-w-2xl shadow-2xl relative animate-pop overflow-hidden flex flex-col max-h-[90vh] border border-slate-200 dark:border-slate-700">
+      <button id="btn-close-detail" class="absolute top-4 right-4 z-10 p-2 bg-black/60 text-white rounded-full hover:bg-black transition backdrop-blur-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="h-48 sm:h-64 w-full bg-slate-200 dark:bg-slate-800 relative flex items-center justify-center">
+        <i data-lucide="image" class="w-12 h-12 text-slate-400/50 absolute" id="detail-placeholder"></i>
+        <img id="detail-image" src="" alt="Poster Kelab" class="w-full h-full object-cover hidden relative z-10">
+      </div>
+      <div class="p-6 sm:p-8 overflow-y-auto">
+        <span id="detail-category" class="inline-block px-3 py-1 bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/60 text-xs font-bold rounded-lg mb-3">Kategori</span>
+        <h3 id="detail-name" class="text-2xl font-extrabold text-slate-900 dark:text-white mb-2">Nama Kelab</h3>
+        <p class="flex items-center text-sm text-slate-600 dark:text-slate-400 mb-6"><i data-lucide="user" class="w-4 h-4 mr-2 text-sky-500"></i> Penasihat: <span id="detail-supervisor" class="ml-1 font-semibold text-slate-800 dark:text-slate-200"></span></p>
+        <div class="prose dark:prose-invert max-w-none mb-8">
+          <p id="detail-desc" class="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed text-sm font-medium"></p>
+        </div>
+        <button id="detail-btn-join" class="w-full sm:w-auto px-8 py-3.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-sky-600/20">
+          Sertai Kelab Ini <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-[100] px-6 py-3.5 rounded-2xl font-semibold shadow-2xl flex items-center gap-3 hidden transition-all duration-300 max-w-md w-[90%] sm:w-auto border">
+    <i id="toast-icon" data-lucide="info" class="w-5 h-5 shrink-0"></i>
+    <span id="toast-msg" class="text-sm line-clamp-2"></span>
+  </div>
+
+  <!-- Card Template -->
+  <template id="template-club-card">
+    <article class="club-card bg-white dark:bg-dark-300 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden flex flex-col h-full animate-pop shadow-sm cursor-pointer js-card-wrapper">
+      <div class="h-44 w-full bg-slate-100 dark:bg-slate-800 relative group overflow-hidden flex items-center justify-center">
+        <i data-lucide="image" class="w-8 h-8 text-slate-300 dark:text-slate-700 absolute"></i>
+        <span class="js-club-category absolute top-3 left-3 z-20 px-2.5 py-1 bg-slate-900/80 backdrop-blur text-white text-xs font-semibold rounded-lg"></span>
+        <img src="" alt="Poster" class="js-club-img w-full h-full object-cover hidden transition-transform duration-500 group-hover:scale-105 relative z-10">
+      </div>
+      <div class="p-6 flex flex-col flex-1">
+        <h3 class="js-club-name text-lg font-bold text-slate-900 dark:text-white mb-2 line-clamp-1"></h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-3 flex items-center"><i data-lucide="user" class="w-4 h-4 mr-1.5 text-sky-500 opacity-80"></i><span class="js-club-supervisor line-clamp-1 font-medium"></span></p>
+        <p class="js-club-desc text-slate-600 dark:text-slate-400 text-sm flex-1 mb-5 line-clamp-2 leading-relaxed"></p>
+        
+        <!-- Admin Controls -->
+        <div class="js-admin-controls hidden pt-4 border-t border-slate-100 dark:border-white/5" onclick="event.stopPropagation()">
+          <div class="js-admin-standard flex gap-2">
+            <button type="button" class="js-btn-edit flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition flex justify-center items-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Edit</button>
+            <button type="button" class="js-btn-delete flex-1 py-2.5 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl text-xs font-bold hover:bg-red-100 dark:hover:bg-red-500/20 transition flex justify-center items-center gap-1.5"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Padam</button>
+          </div>
+          <div class="js-admin-confirm hidden flex-col gap-2">
+            <p class="text-xs text-center text-slate-500 font-semibold">Pasti mahu padam kelab ini?</p>
+            <div class="flex gap-2">
+              <button type="button" class="js-btn-confirm-yes flex-1 py-2 bg-red-600 text-white hover:bg-red-700 rounded-xl text-xs font-bold transition shadow-sm">Ya, Padam</button>
+              <button type="button" class="js-btn-confirm-no flex-1 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white rounded-xl text-xs font-bold transition">Batal</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
